@@ -2,18 +2,11 @@
 #!desc=Fileball会员
 #!icon=https://raw.githubusercontent.com/deezertidal/private/main/icons/fileball.png
 
+[Rewrite]
+^https:\/\/app-measurement\.com\/config\/app\/1?(.*?)*$ reject
+
 [Script]
+http-response ^https?:\/\/api\.revenuecat\.com\/v1\/(receipts|subscribers\/\$RCAnonymousID%3A\w{32})$ script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/fileball.js, requires-body=true, tag=fileball
 
-[rewrite_local]
-
-^https?:\/\/api\.revenuecat\.com\/v1\/(receipts|subscribers\/\$RCAnonymousID%3A\w{32})$ url script-response-body https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/fileball.js
-
-^https:\/\/app-measurement\.com\/config\/app\/1?(.*?)*$ url reject
-
-[mitm] 
-
+[Mitm]
 hostname = api.revenuecat.com, app-measurement.com
- = type=http-response,pattern=^https?:\/\/api\.revenuecat\.com\/v1\/(receipts|subscribers\/\$RCAnonymousID%3A\w{32})$,requires-body=1,max-size=0,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/fileball.js,script-update-interval=0
-
-[MITM]
-hostname= %APPEND% api.revenuecat.com, app-measurement.com
