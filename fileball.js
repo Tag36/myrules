@@ -5,7 +5,7 @@
 
 [rewrite_local]
 
-^https?:\/\/api\.revenuecat\.com\/v1\/(receipts|subscribers\/\$RCAnonymousID%3A\w{32})$ url script-response-body fileball.js
+^https?:\/\/api\.revenuecat\.com\/v1\/(receipts|subscribers\/\$RCAnonymousID%3A\w{32})$ url script-response-body https://raw.githubusercontent.com/Tag36/myrules/main/fileball.js
 
 ^https://firebaseremoteconfig.googleapis.com/v1/projects/filebox-ac299/.* url script-response-body projects.js
 
