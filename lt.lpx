@@ -1,4 +1,4 @@
-# 中国联通去广告
+# http://script.hub/convert/_start_/中国联通去广告
 
 # 移除开屏广告
 DOMAIN,m1.ad.10010.com,REJECT
@@ -13,4 +13,4 @@ DOMAIN,m1.ad.10010.com,REJECT
 ^https:\/\/m\.client\.10010\.com\/search_service\/tyfbSearch\/searchDiscoverListExpress response-body-json-jq '.data = []'
 ^https:\/\/m\.client\.10010\.com\/search_service\/search\/searchScrollWord response-body-json-jq '.["113000004"] = []'
 
-hostname= m.client.10010.com
+hostname= m.client.10010.com/_end_/searchScrollWord%20response-body-json-jq%20'.%5B%22113000004%22%5D%20%3D%20%5B%5D'%0A%0Ahostname%3D%20m.client.10010.com?type=plain-text&target=plain-text&del=true&jqEnabled=true
