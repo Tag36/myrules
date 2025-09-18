@@ -1,19 +1,29 @@
-# 1. 参数配置区：定义Cookie和Host输入框（参数名与脚本对应）
+# 1. 参数配置区：定义Cookie、Host输入框（与远程脚本参数名严格对应）
 [Argument]
-# 手动输入Cookie（参数名：cookie，与脚本 $argument.cookie 对应）
-cookie = input, "", tag = 手动输入Cookie, desc = 粘贴接口所需完整Cookie值（必填）
-# 手动输入接口Host（参数名：host，与脚本 $argument.host 对应）
-host = input, "123.138.11.116", tag = 手动输入接口Host, desc = 填写目标接口Host（无需http/https，默认123.138.11.116）
-# 任务开关（控制脚本是否执行）
-task_switch = switch, true, false, tag = 任务开关, desc = 启用/关闭POST请求任务
-# 定时执行规则（按需配置）
-cron_time = input, "0 0 9 * * *", tag = 定时参数, desc = 脚本执行时间（Cron表达式，例：每天9点）
+# 手动输入Cookie（参数名：cookie，远程脚本通过 $argument.cookie 读取）
+cookie = input, "", tag = 手动输入Cookie, desc = 粘贴接口所需完整Cookie值（必填，不可为空）
+# 手动输入接口Host（参数名：host，远程脚本通过 $argument.host 读取，默认值兜底）
+host = input, "123.138.11.116", tag = 手动输入接口Host, desc = 目标接口的Host（无需加http/https，默认123.138.11.116）
+# 任务总开关（控制远程脚本是否执行）
+task_switch = switch, true, false, tag = 任务开关, desc = 开启=执行远程脚本；关闭=暂停脚本
+# 定时执行规则（Cron表达式，格式：秒 分 时 日 月 周）
+cron_time = input, "0 0 9 * * *", tag = 定时参数, desc = 脚本执行时间（例：每天9点执行填“0 0 9 * * *”）
 
-# 2. 脚本绑定区：按规则传递参数（数组中填写参数名，与[Argument]对应）
+# 2. 脚本绑定区：引用远程脚本+传递参数（核心配置）
 [Script]
-# 本地脚本路径（根据你的实际存放路径修改，例：Loon本地脚本路径 ~/Documents/lt.js）
-cron {cron_time} script-path = ~/Documents/lt.js, tag = POST请求任务, enable={task_switch},
-argument = [{cookie}, {host}]  # 数组传入cookie和host参数，与脚本 $argument.cookie/$argument.host 对应
+# 定时触发远程脚本：通过 cron 绑定定时规则，enable 绑定开关，argument 传递参数
+cron {cron_time} 
+script-path = https://raw.githubusercontent.com/Tag36/myrules/refs/heads/main/lt.js,  # 远程脚本固定URL
+tag = 远程POST请求任务,  # 脚本标签（便于在Loon中识别）
+enable = {task_switch},  # 受任务开关控制（true=启用，false=禁用）
+argument = [{cookie}, {host}]  # 数组传递参数：顺序对应[Argument]中的cookie和host，远程脚本按名称读取
+
+# （可选）手动触发远程脚本：无需定时，在Loon脚本页面点击“运行”即可执行
+# http-request ^https://trigger-remote-script.com  # 触发链接（可自定义，仅用于手动触发）
+# script-path = https://raw.githubusercontent.com/Tag36/myrules/refs/heads/main/lt.js,
+# tag = 手动触发远程脚本,
+# enable = {task_switch},
+# argument = [{cookie}, {host}]
 
 # 3. MitM拦截区：拦截目标Host（确保请求正常）
 [MitM]
