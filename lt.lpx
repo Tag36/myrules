@@ -1,4 +1,4 @@
-# 1. 参数配置区：手动输入Cookie+活动域名+开关/定时
+# 1. 参数配置区：手动输入Cookie+活动域名+开关/定时（保持不变，仅适配传递的变量名）
 [Argument]
 # 手动输入联通活动Cookie（必填，登录后从浏览器/抓包获取）
 Cookie-unicom-manual = input, "", tag = 手动输入Cookie, desc = 粘贴联通活动页面的完整Cookie（含UID、TOKEN等，从m.client.10010.com域名下获取）
@@ -9,16 +9,16 @@ Task-unicom = switch, true, false, tag = 抢购任务开关, desc = 启用/关�
 # 定时执行规则（默认每周五10:00，格式：秒 分 时 日 月 周）
 Cron-unicom = input, "0 0 10 * * 5", tag = 定时参数, desc = 抢购时间（例：每周五9:59:50为10 59 9 * * 5）
 
-# 2. 脚本绑定区：调用远程脚本，传递Cookie和域名参数
+# 2. 脚本绑定区：修改argument的变量名，与新lt.js接收的变量名匹配
 [Script]
-# 定时执行抢购脚本（使用修改后的lt.js，支持参数接收）
+# 定时执行抢购脚本（变量名改为新lt.js支持的「cookie」和「domain」）
 cron {Cron-unicom} script-path = https://raw.githubusercontent.com/Tag36/myrules/refs/heads/main/lt.js, tag = [联通超级星期五]话费抢购, enable={Task-unicom}, 
-argument = "unicom_cookie={Cookie-unicom-manual}&unicom_domain={Domain-unicom-manual}"
+argument = "cookie={Cookie-unicom-manual}&domain={Domain-unicom-manual}"  # 关键修改：键名从unicom_cookie/unicom_domain改为cookie/domain
 
-# （可选）手动触发脚本（非定时，需在工具中手动运行）
+# （可选）手动触发脚本的变量名同步修改
 # http-request ^https://trigger-unicom.com script-path = https://raw.githubusercontent.com/Tag36/myrules/refs/heads/main/lt.js, tag = [联通超级星期五]手动触发抢购, enable={Task-unicom}, 
-# argument = "unicom_cookie={Cookie-unicom-manual}&unicom_domain={Domain-unicom-manual}"
+# argument = "cookie={Cookie-unicom-manual}&domain={Domain-unicom-manual}"
 
-# 3. MitM拦截区：固定拦截联通活动域名m.client.10010.com
+# 3. MitM拦截区：固定拦截联通活动域名m.client.10010.com（保持不变）
 [MitM]
 hostname = m.client.10010.com
