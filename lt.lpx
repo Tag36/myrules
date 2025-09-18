@@ -1,13 +1,13 @@
 # 1. 参数配置区：手动输入Cookie+活动域名+开关/定时
 [Argument]
 # 手动输入联通活动Cookie（必填，登录后从浏览器/抓包获取）
-Cookie-unicom-manual = input, "", tag = [联通超级星期五]手动输入Cookie, desc = 粘贴联通活动页面的完整Cookie（含UID、TOKEN等，从m.client.10010.com域名下获取）
+Cookie-unicom-manual = input, "", tag = 手动输入Cookie, desc = 粘贴联通活动页面的完整Cookie（含UID、TOKEN等，从m.client.10010.com域名下获取）
 # 手动输入联通活动接口域名（默认m.client.10010.com，可按需修改）
-Domain-unicom-manual = input, "m.client.10010.com", tag = [联通超级星期五]手动输入活动域名, desc = 填写联通活动接口根域名（默认m.client.10010.com，无需http/https）
+Domain-unicom-manual = input, "m.client.10010.com", tag = 手动输入活动域名, desc = 填写联通活动接口根域名（默认m.client.10010.com，无需http/https）
 # 抢购任务总开关（true=启用，false=关闭）
-Task-unicom = switch, true, false, tag = [联通超级星期五]抢购任务开关, desc = 启用/关闭话费抢购定时任务
+Task-unicom = switch, true, false, tag = 抢购任务开关, desc = 启用/关闭话费抢购定时任务
 # 定时执行规则（默认每周五10:00，格式：秒 分 时 日 月 周）
-Cron-unicom = input, "0 0 10 * * 5", tag = [联通超级星期五]定时参数, desc = 抢购时间（例：每周五9:59:50为10 59 9 * * 5）
+Cron-unicom = input, "0 0 10 * * 5", tag = 定时参数, desc = 抢购时间（例：每周五9:59:50为10 59 9 * * 5）
 
 # 2. 脚本绑定区：调用远程脚本，传递Cookie和域名参数
 [Script]
