@@ -12,10 +12,7 @@ cron_time = input, "0 0 9 * * *", tag = 定时参数, desc = 脚本执行时间�
 # 2. 脚本绑定区：引用远程脚本+传递参数（核心配置）
 [Script]
 # 定时触发远程脚本：通过 cron 绑定定时规则，enable 绑定开关，argument 传递参数
-cron {cron_time} 
-script-path = https://raw.githubusercontent.com/Tag36/myrules/refs/heads/main/lt.js,  # 远程脚本固定URL
-tag = 远程POST请求任务,  # 脚本标签（便于在Loon中识别）
-enable = {task_switch},  # 受任务开关控制（true=启用，false=禁用）
+cron {Cron-time} script-path = https://raw.githubusercontent.com/Tag36/myrules/refs/heads/main/lt.js, tag = POST请求任务, enable={Task-switch},  # 受任务开关控制（true=启用，false=禁用）
 argument = [{cookie}, {host}]  # 数组传递参数：顺序对应[Argument]中的cookie和host，远程脚本按名称读取
 
 # （可选）手动触发远程脚本：无需定时，在Loon脚本页面点击“运行”即可执行
