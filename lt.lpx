@@ -1,19 +1,19 @@
-# 1. 参数配置区：定义Cookie和Host参数（名称与脚本对应）
+# 1. 参数配置区：定义Cookie和Host输入框（参数名与脚本对应）
 [Argument]
-# 手动输入Cookie（参数名：Cookie-manual，脚本中对应 $argument.Cookie_manual）
-Cookie-manual = input, "", tag = 手动输入Cookie, desc = 粘贴接口所需的完整Cookie值（必填）
-# 手动输入接口Host（参数名：Host-manual，脚本中对应 $argument.Host_manual）
-Host-manual = input, "123.138.11.116", tag = 手动输入接口Host, desc = 填写目标接口的Host（无需http/https，默认123.138.11.116）
+# 手动输入Cookie（参数名：cookie，与脚本 $argument.cookie 对应）
+cookie = input, "", tag = 手动输入Cookie, desc = 粘贴接口所需完整Cookie值（必填）
+# 手动输入接口Host（参数名：host，与脚本 $argument.host 对应）
+host = input, "123.138.11.116", tag = 手动输入接口Host, desc = 填写目标接口Host（无需http/https，默认123.138.11.116）
 # 任务开关（控制脚本是否执行）
-Task-switch = switch, true, false, tag = 任务开关, desc = 启用/关闭POST请求任务
-# 定时执行规则（Cron表达式）
-Cron-time = input, "0 0 9 * * *", tag = 定时参数, desc = 脚本定时执行时间（例：每天9点执行）
+task_switch = switch, true, false, tag = 任务开关, desc = 启用/关闭POST请求任务
+# 定时执行规则（按需配置）
+cron_time = input, "0 0 9 * * *", tag = 定时参数, desc = 脚本执行时间（Cron表达式，例：每天9点）
 
-# 2. 脚本绑定区：按名称传递参数（数组中填写参数名，与[Argument]对应）
+# 2. 脚本绑定区：按规则传递参数（数组中填写参数名，与[Argument]对应）
 [Script]
-# 定时执行脚本，argument数组传入Cookie-manual和Host-manual参数
-cron {Cron-time} script-path = https://raw.githubusercontent.com/Tag36/myrules/refs/heads/main/lt.js, tag = POST请求任务, enable={Task-switch},
-argument = [{Cookie-manual}, {Host-manual}]  # 数组元素为[Argument]中定义的参数名，脚本按名称读取
+# 本地脚本路径（根据你的实际存放路径修改，例：Loon本地脚本路径 ~/Documents/lt.js）
+cron {cron_time} script-path = ~/Documents/lt.js, tag = POST请求任务, enable={task_switch},
+argument = [{cookie}, {host}]  # 数组传入cookie和host参数，与脚本 $argument.cookie/$argument.host 对应
 
 # 3. MitM拦截区：拦截目标Host（确保请求正常）
 [MitM]
