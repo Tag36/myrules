@@ -1,69 +1,73 @@
 /*
- * Loon 脚本：联通超级星期五话费抢购（修复$arguments未定义问题）
- * 适配配置传递的参数：cookie（手动输入的Cookie）、domain（活动域名）
+ * Loon 脚本：联通超级星期五话费抢购（适配案例成功模式：数组参数+按索引读取）
+ * 参数来源：配置传递的数组 [Cookie, 域名]，脚本按索引读取
+ * $argument[0] = Cookie（手动输入的联通活动Cookie）
+ * $argument[1] = 域名（手动输入的活动域名，默认m.client.10010.com）
  */
 
 function main() {
-    // 1. 用Loon标准变量$argument读取配置传递的参数（键值对格式：cookie=xxx&domain=xxx）
-    const paramStr = $argument || ""; // 关键修改：$argument（单数），而非$arguments
-    let config = {
-        cookie: "",
-        domain: "m.client.10010.com", // 默认域名，配置可覆盖
-        apiPath: "/api/activity/super-friday/buy" // 需替换为抓包的真实抢购接口路径
+    // 1. 按案例模式读取参数（$argument是数组，单数！对应配置中的数组参数）
+    const cookie = $argument[0] || ""; // 数组第0位：Cookie（必填）
+    const domain = $argument[1] || "m.client.10010.com"; // 数组第1位：域名（默认值兜底）
+    const config = {
+        cookie: cookie.trim(),
+        domain: domain.trim(),
+        apiPath: "/api/activity/super-friday/buy" // 【必须修改】抓包获取的真实抢购接口路径
     };
 
-    // 2. 解析参数（按“&”分割键值对，按“=”分割键和值）
-    if (paramStr.trim()) {
-        paramStr.split("&").forEach(pair => {
-            const [key, value] = pair.split("=").map(item => decodeURIComponent(item.trim()));
-            if (key === "cookie" && value) config.cookie = value; // 匹配配置传递的“cookie”键
-            if (key === "domain" && value) config.domain = value; // 匹配配置传递的“domain”键
-        });
-    }
-
-    // 3. 校验必填参数（Cookie不能为空）
-    if (!config.cookie.trim()) {
-        const errMsg = "请在配置中填写联通活动Cookie！";
+    // 2. 校验必填参数（Cookie不能为空，与案例一致的参数校验逻辑）
+    if (!config.cookie) {
+        const errMsg = "请在配置「手动输入Cookie」中填写联通活动Cookie！";
         console.error(errMsg);
-        $notification.post("抢购失败", "参数缺失", errMsg);
+        $notification.post("联通抢购失败", "参数缺失", errMsg);
         $done();
         return;
     }
 
-    // 4. 构造抢购请求（Loon标准$httpClient格式）
+    // 3. 构造抢购请求（Loon标准$httpClient格式，与案例脚本规范一致）
     const requestConfig = {
-        url: `https://${config.domain}${config.apiPath}`,
+        url: `https://${config.domain}${config.apiPath}`, // 拼接完整接口URL
         headers: {
-            "Host": config.domain,
+            "Host": config.domain, // 与域名一致（Loon必配，案例脚本也遵循此规范）
             "Content-Type": "application/x-www-form-urlencoded",
-            "Cookie": config.cookie,
+            "Cookie": config.cookie, // 使用读取到的Cookie
             "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.37 NetType/WIFI Language/zh_CN"
         },
+        // 4. 请求体（按抓包的真实参数修改，page、id仅为示例）
         body: `cookie=${encodeURIComponent(config.cookie)}&page=1&id=1&buyType=phone_fee`
     };
 
-    // 5. 发送POST请求
-    $httpClient.post(requestConfig, (error, response, data) => {
+    // 5. 发送POST请求（与案例脚本一致的异步请求逻辑）
+    $httpClient.post(requestConfig, function(error, response, data) {
         if (error) {
-            const errInfo = `网络错误：${error.message}`;
-            console.error("抢购失败:", errInfo);
-            $notification.post("联通抢购失败", "请求异常", errInfo);
+            // 错误处理（案例脚本也用console+notification双反馈）
+            const errorInfo = `网络错误：${error.message}`;
+            console.error("抢购请求失败:", errorInfo);
+            $notification.post("联通抢购失败", "请求异常", errorInfo);
         } else {
-            const status = response.statusCode;
-            let title = "抢购结果", content;
-            if (status === 200 && data.includes("success")) {
-                title = "🎉 抢购成功";
-                content = "话费抢购请求提交成功！请前往APP确认";
-            } else if (status === 401) {
-                content = "⚠️ Cookie已过期，请更新配置中的Cookie";
-            } else {
-                content = `❌ 失败（状态码：${status}），响应：${data.slice(0, 100)}`;
+            // 响应处理（按状态码和返回内容判断结果，参考案例的结果判断逻辑）
+            const statusCode = response.statusCode;
+            let notifyTitle = "联通抢购结果";
+            let notifyContent = `状态码：${statusCode}\n响应内容：${data.slice(0, 100)}...`;
+
+            // 适配常见场景（需根据真实接口返回调整，案例也有类似场景判断）
+            if (statusCode === 200 && data.includes("success") && !data.includes("fail")) {
+                notifyTitle = "🎉 联通抢购成功";
+                notifyContent = "话费抢购请求提交成功！请前往联通APP确认订单~";
+            } else if (statusCode === 401 || data.includes("token失效") || data.includes("未登录")) {
+                notifyTitle = "⚠️ 抢购失败（Cookie失效）";
+                notifyContent = "请重新获取联通活动Cookie并更新配置！";
+            } else if (statusCode === 404) {
+                notifyTitle = "❌ 抢购失败（接口错误）";
+                notifyContent = "接口路径错误，请修改脚本中的apiPath参数（抓包获取真实路径）！";
             }
-            console.log(title + ":", content);
-            $notification.post(title, "", content);
+
+            console.log(notifyTitle + ":", notifyContent);
+            $notification.post(notifyTitle, "", notifyContent);
         }
-        $done(); // Loon脚本必须调用$done()结束
+        $done(); // Loon脚本必须调用$done()结束（案例脚本的强制规范）
     });
 }
 
+// 执行脚本（案例脚本也用直接调用main()的方式）
 main();
