@@ -1,43 +1,38 @@
-<!DOCTYPE html>
-<html>
-<body>
-  <script>
-    // 1. 配置请求参数（与Python代码完全对应）
-    const url = "http://123.138.11.116";
-    const data = new URLSearchParams({ // 模拟表单格式（application/x-www-form-urlencoded）
-      "cookie": ="TOKEN_UID_NAME=GiSUrOdExHiJ3/cc6LJJEFqkbiC1DpjZIaVwynxhDmykxX5xg14RbuR2Z+VFqjY00iYb4kT9KDIi6anu8TT2unrVxw8quugUj9UxETWPnEaiBSvYTjTle/rbBT0m3ve9zS/136I4R9C6TY0IlIR8k3Gn8TzMQF2db4rqIi5E1SffMVhX4k6MuekRVhKMnM0NSidqoh223cRNt7CJJ2rcATiNlBKbPVujp4UhUhVpdrw", // 注意：原Python代码中“cokkie”拼写错误（正确为“cookie”），此处保留原拼写
-      "page": 2,
-      "id": 1
-    });
-    const headers = {
-      "Content-Type": "application/x-www-form-urlencoded"
+/*
+ * Loon 环境脚本：发送 POST 请求（带 Cookie、page、id 参数）
+ */
+
+
+function main() {
+    // 1. 配置请求参数（适配 Loon $httpClient 格式）
+    const requestParams = {
+        url: "http://123.138.11.116", // 目标接口，必须带协议（http/https）
+        headers: {
+            "Host": "123.138.11.116", // 与 URL 主机一致（Loon 建议显式指定）
+            "Content-Type": "application/x-www-form-urlencoded" // 表单编码格式
+        },
+        // 2. 构造请求体（填入你的完整 Cookie 值，手动处理 URL 编码）
+        body: `cookie=${encodeURIComponent("")}&page=1&id=1`
+        // 注：用 encodeURIComponent 自动处理 Cookie 中的特殊字符（空格、/、+ 等）
     };
 
-    // 2. 发送POST请求（使用async/await简化异步逻辑）
-    async function sendPostRequest() {
-      try {
-        const response = await fetch(url, {
-          method: "POST", // 指定请求方法为POST
-          headers: headers,
-          body: data // 表单格式数据放入body
-        });
-
-        // 若状态码不是2xx，主动抛出错误（对应Python的response.raise_for_status()）
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+    // 3. 使用 Loon 内置 $httpClient.post 发送 POST 请求
+    $httpClient.post(requestParams, function(error, response, data) {
+        if (error) {
+            // 4. 处理请求错误
+            console.error("Fetch error:", error);
+            $notification.post("请求失败", "错误信息", error.message); // 可选：发送通知提醒
+        } else {
+            // 5. 处理请求成功（打印响应并可选发送通知）
+            console.log("Response status:", response.statusCode); // 打印状态码
+            console.log("Response text:", data); // 打印响应内容（data 即响应文本）
+            
+            // 可选：用通知展示响应结果（便于快速查看）
+            $notification.post("请求成功", `状态码: ${response.statusCode}`, `响应内容: ${data.slice(0, 100)}...`);
         }
+        $done(); // Loon 脚本必须调用 $done() 结束任务
+    });
+}
 
-        // 读取响应内容（对应Python的response.text）
-        const responseText = await response.text();
-        console.log("Response text:", responseText);
-      } catch (error) {
-        // 捕获所有请求异常（网络错误、状态码错误等，对应Python的requests.RequestException）
-        console.log("Fetch error:", error.message);
-      }
-    }
-
-    // 3. 执行请求
-    sendPostRequest();
-  </script>
-</body>
-</html>
+// 执行脚本入口函数
+main();
