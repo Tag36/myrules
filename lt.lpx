@@ -21,4 +21,4 @@ argument = "unicom_cookie={Cookie-unicom-manual}&unicom_domain={Domain-unicom-ma
 
 # 3. MitM拦截区：固定拦截联通活动域名m.client.10010.com
 [MitM]
-hostname = m.client.10010.com  # 固定拦截联通核心活动域名，无需修改
+hostname = m.client.10010.com
