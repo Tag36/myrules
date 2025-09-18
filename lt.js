@@ -1,73 +1,42 @@
-/*
- * Loon 脚本：联通超级星期五话费抢购（适配案例成功模式：数组参数+按索引读取）
- * 参数来源：配置传递的数组 [Cookie, 域名]，脚本按索引读取
- * $argument[0] = Cookie（手动输入的联通活动Cookie）
- * $argument[1] = 域名（手动输入的活动域名，默认m.client.10010.com）
- */
-
 function main() {
-    // 1. 按案例模式读取参数（$argument是数组，单数！对应配置中的数组参数）
-    const cookie = $argument[0] || ""; // 数组第0位：Cookie（必填）
-    const domain = $argument[1] || "m.client.10010.com"; // 数组第1位：域名（默认值兜底）
-    const config = {
-        cookie: cookie.trim(),
-        domain: domain.trim(),
-        apiPath: "/api/activity/super-friday/buy" // 【必须修改】抓包获取的真实抢购接口路径
-    };
+    // 1. 从配置传入的参数中，按名称读取Cookie和Host（适配 $argument.参数名 规则）
+    // 配置中argument数组需包含 {Cookie-manual}（Cookie参数）和 {Host-manual}（Host参数）
+    const configCookie = $argument.Cookie_manual || ""; // 读取名称为Cookie_manual的参数（注意：配置中参数名含“-”时，脚本中需转为“_”）
+    const configHost = $argument.Host_manual || "123.138.11.116"; // 读取名称为Host_manual的参数，默认值兜底
 
-    // 2. 校验必填参数（Cookie不能为空，与案例一致的参数校验逻辑）
-    if (!config.cookie) {
-        const errMsg = "请在配置「手动输入Cookie」中填写联通活动Cookie！";
+    // 2. 校验必填参数（Cookie不能为空）
+    if (!configCookie.trim()) {
+        const errMsg = "请在配置「Cookie-manual」参数中填写有效的Cookie！";
         console.error(errMsg);
-        $notification.post("联通抢购失败", "参数缺失", errMsg);
+        $notification.post("请求失败", "参数缺失", errMsg);
         $done();
         return;
     }
 
-    // 3. 构造抢购请求（Loon标准$httpClient格式，与案例脚本规范一致）
-    const requestConfig = {
-        url: `https://${config.domain}${config.apiPath}`, // 拼接完整接口URL
+    // 3. 配置请求参数（Cookie和Host使用传递的参数，其余保留原有逻辑）
+    const requestParams = {
+        url: `http://${configHost}`, // 用传递的Host拼接完整接口URL（与Host头一致）
         headers: {
-            "Host": config.domain, // 与域名一致（Loon必配，案例脚本也遵循此规范）
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Cookie": config.cookie, // 使用读取到的Cookie
-            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.37 NetType/WIFI Language/zh_CN"
+            "Host": configHost, // 直接使用传递的Host（Loon建议显式指定）
+            "Content-Type": "application/x-www-form-urlencoded" // 保留原有表单编码格式
         },
-        // 4. 请求体（按抓包的真实参数修改，page、id仅为示例）
-        body: `cookie=${encodeURIComponent(config.cookie)}&page=1&id=1&buyType=phone_fee`
+        // 4. 构造请求体（Cookie使用传递的参数，自动处理特殊字符）
+        body: `cookie=${encodeURIComponent(configCookie)}&page=1&id=1`
     };
 
-    // 5. 发送POST请求（与案例脚本一致的异步请求逻辑）
-    $httpClient.post(requestConfig, function(error, response, data) {
+    // 5. 发送POST请求（保留原有请求逻辑）
+    $httpClient.post(requestParams, function(error, response, data) {
         if (error) {
-            // 错误处理（案例脚本也用console+notification双反馈）
-            const errorInfo = `网络错误：${error.message}`;
-            console.error("抢购请求失败:", errorInfo);
-            $notification.post("联通抢购失败", "请求异常", errorInfo);
+            console.error("Fetch error:", error);
+            $notification.post("请求失败", "错误信息", error.message);
         } else {
-            // 响应处理（按状态码和返回内容判断结果，参考案例的结果判断逻辑）
-            const statusCode = response.statusCode;
-            let notifyTitle = "联通抢购结果";
-            let notifyContent = `状态码：${statusCode}\n响应内容：${data.slice(0, 100)}...`;
-
-            // 适配常见场景（需根据真实接口返回调整，案例也有类似场景判断）
-            if (statusCode === 200 && data.includes("success") && !data.includes("fail")) {
-                notifyTitle = "🎉 联通抢购成功";
-                notifyContent = "话费抢购请求提交成功！请前往联通APP确认订单~";
-            } else if (statusCode === 401 || data.includes("token失效") || data.includes("未登录")) {
-                notifyTitle = "⚠️ 抢购失败（Cookie失效）";
-                notifyContent = "请重新获取联通活动Cookie并更新配置！";
-            } else if (statusCode === 404) {
-                notifyTitle = "❌ 抢购失败（接口错误）";
-                notifyContent = "接口路径错误，请修改脚本中的apiPath参数（抓包获取真实路径）！";
-            }
-
-            console.log(notifyTitle + ":", notifyContent);
-            $notification.post(notifyTitle, "", notifyContent);
+            console.log("Response status:", response.statusCode);
+            console.log("Response text:", data);
+            $notification.post("请求成功", `状态码: ${response.statusCode}`, `响应内容: ${data.slice(0, 100)}...`);
         }
-        $done(); // Loon脚本必须调用$done()结束（案例脚本的强制规范）
+        $done(); // Loon脚本必须调用$done()结束任务
     });
 }
 
-// 执行脚本（案例脚本也用直接调用main()的方式）
+// 执行脚本入口
 main();
