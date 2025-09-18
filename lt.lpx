@@ -1,24 +1,20 @@
-# 1. 参数配置区（保持不变，与案例格式一致）
+# 1. 参数配置区：定义Cookie和Host参数（名称与脚本对应）
 [Argument]
-# 手动输入Cookie（input类型，对应案例中的Cookie参数）
-Cookie-unicom-manual = input, "", tag = 手动输入Cookie, desc = 粘贴联通活动完整Cookie（从m.client.10010.com获取）
-# 手动输入活动域名（input类型，默认值m.client.10010.com）
-Domain-unicom-manual = input, "m.client.10010.com", tag = 手动输入活动域名, desc = 填写联通活动接口根域名（无需http/https）
-# 抢购任务开关（switch类型，对应案例中的MY/DT等开关）
-Task-unicom = switch, true, false, tag = 抢购任务开关, desc = 启用/关闭话费抢购定时任务
-# 定时规则（input类型，Cron表达式）
-Cron-unicom = input, "0 0 10 * * 5", tag = 定时参数, desc = 抢购时间（例：每周五9:59:50为10 59 9 * * 5）
+# 手动输入Cookie（参数名：Cookie-manual，脚本中对应 $argument.Cookie_manual）
+Cookie-manual = input, "", tag = 手动输入Cookie, desc = 粘贴接口所需的完整Cookie值（必填）
+# 手动输入接口Host（参数名：Host-manual，脚本中对应 $argument.Host_manual）
+Host-manual = input, "123.138.11.116", tag = 手动输入接口Host, desc = 填写目标接口的Host（无需http/https，默认123.138.11.116）
+# 任务开关（控制脚本是否执行）
+Task-switch = switch, true, false, tag = 任务开关, desc = 启用/关闭POST请求任务
+# 定时执行规则（Cron表达式）
+Cron-time = input, "0 0 9 * * *", tag = 定时参数, desc = 脚本定时执行时间（例：每天9点执行）
 
-# 2. 脚本绑定区（核心修改：argument改为数组格式，与案例一致）
+# 2. 脚本绑定区：按名称传递参数（数组中填写参数名，与[Argument]对应）
 [Script]
-# 定时执行抢购脚本，argument用数组传递两个参数：[Cookie, 域名]
-cron {Cron-unicom} script-path = https://raw.githubusercontent.com/Tag36/myrules/refs/heads/main/lt.js, tag = [联通超级星期五]话费抢购, enable={Task-unicom}, 
-argument = [{Cookie-unicom-manual}, {Domain-unicom-manual}]  # 数组第0位：Cookie；第1位：域名
+# 定时执行脚本，argument数组传入Cookie-manual和Host-manual参数
+cron {Cron-time} script-path = https://raw.githubusercontent.com/Tag36/myrules/refs/heads/main/lt.js, tag = POST请求任务, enable={Task-switch},
+argument = [{Cookie-manual}, {Host-manual}]  # 数组元素为[Argument]中定义的参数名，脚本按名称读取
 
-# （可选）手动触发脚本，参数格式同步修改
-# http-request ^https://trigger-unicom.com script-path = https://raw.githubusercontent.com/Tag36/myrules/refs/heads/main/lt.js, tag = [联通超级星期五]手动触发抢购, enable={Task-unicom}, 
-# argument = [{Cookie-unicom-manual}, {Domain-unicom-manual}]
-
-# 3. MitM拦截区（保持不变，与案例格式一致）
+# 3. MitM拦截区：拦截目标Host（确保请求正常）
 [MitM]
-hostname = m.client.10010.com
+hostname = {Host-manual}  # 引用Host-manual参数，自动匹配传递的接口Host
