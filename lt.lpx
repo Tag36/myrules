@@ -17,4 +17,4 @@ argument = [{Cookie-manual}, {Host-manual}]  # 数组元素为[Argument]中定�
 
 # 3. MitM拦截区：拦截目标Host（确保请求正常）
 [MitM]
-hostname = {Host-manual}  # 引用Host-manual参数，自动匹配传递的接口Host
+hostname = m.client.10010.com
