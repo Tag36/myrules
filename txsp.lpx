@@ -1,0 +1,118 @@
+#!name = 腾讯视频
+#!desc = 不负好时光 [不负好广告]
+#!openUrl = https://apps.apple.com/app/id458318329
+#!author = RuCu6[https://github.com/RuCu6]
+#!tag = 去广告
+#!system = 
+#!system_version = 
+#!loon_version = 3.3.4(898)
+#!homepage = https://github.com/sooyaaabo/Loon/blob/main/README.md
+#!icon = https://raw.githubusercontent.com/sooyaaabo/Loon/main/Icon/App-Icon/TencentVideo.png
+#!date = 2025-09-18 12:00
+
+# https://raw.githubusercontent.com/RuCu6/QuanX/main/Rewrites/Cube/cnftp.snippet
+# https://raw.githubusercontent.com/fmz200/wool_scripts/main/Loon/rule/TencentVideo.list
+
+
+VIP = switch, false, tag = [启用]会员, desc = 关闭开关将不对此选项生效
+Cookie = input, "", tag = Cookie, desc = 必填
+MConfigInfo = input, "{"client":{"version":1830912,"appver":"9.1.70"},"device":{"os":"iOS","deviceModel":"iPhone 12"}}", tag = MConfigInfo ,desc = 选填
+UserAgent = input, "Mozilla/5.0 (iPhone; CPU iPhone OS 15_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 TencentVideo/8.0.30", tag = UserAgent, desc = 选填
+
+
+[Rule]
+AND, ((IP-CIDR, 0.0.0.0/0, no-resolve), (USER-AGENT, "live4iphoneRel*")), REJECT-DROP
+
+DOMAIN, adsmind.gdtimg.com, REJECT
+DOMAIN, info4.video.qq.com, REJECT
+DOMAIN, info6.video.qq.com, REJECT
+DOMAIN, ios.video.mpush.qq.com, REJECT
+DOMAIN, otheve.beacon.qq.com, REJECT
+DOMAIN, pgdt.gtimg.cn, REJECT
+DOMAIN, tpns.qq.com, REJECT
+DOMAIN, vv6.video.qq.com, REJECT
+DOMAIN-SUFFIX, gdt.qq.com, REJECT
+DOMAIN-SUFFIX, l.qq.com, REJECT
+DOMAIN-KEYWORD, trace.qq.com, REJECT
+DOMAIN-KEYWORD, trace.video.qq.com, REJECT
+IP-CIDR, 47.110.187.87/32, REJECT, no-resolve
+URL-REGEX, "^http:\/\/[\d\.:]*\/?(defaultts\.tc|vmind\.qqvideo\.tc|finderpdd\.video)\.qq\.com\/\w+", REJECT
+URL-REGEX, "^http:\/\/apd-vlive\.apdcdn\.tc\.qq\.com\/vmind\.qqvideo\.tc\.qq\.com\/\w+", REJECT
+URL-REGEX, "^http:\/\/apd-\w+\.v\.smtcdns\.com\/(defaultts|omts|vmind\.qqvideo)\.tc\.qq\.com\/\w+", REJECT
+
+DOMAIN, ugchsy.gtimg.com, REJECT
+DOMAIN, rmonitor.qq.com, REJECT
+DOMAIN, activity.video.qq.com, REJECT
+DOMAIN, iacc.qq.com, REJECT
+DOMAIN, tux.qq.com, REJECT
+DOMAIN, aegis.qq.com, REJECT
+DOMAIN, rdelivery.qq.com, REJECT
+DOMAIN-SUFFIX, static-res.qq.com, REJECT
+DOMAIN-SUFFIX, gdtimg.com, REJECT
+DOMAIN-SUFFIX, l.qq.com, REJECT
+DOMAIN-SUFFIX, gdt.qq.com, REJECT
+DOMAIN-SUFFIX, video.mpush.qq.com, REJECT
+DOMAIN-SUFFIX, api.poll.video.qq.com, REJECT
+DOMAIN-SUFFIX, tpns.tencent.com, REJECT
+DOMAIN-SUFFIX, omgmta.qq.com, REJECT
+DOMAIN-SUFFIX, omgmta1.qq.com, REJECT
+DOMAIN-KEYWORD, track.qq.com, REJECT
+DOMAIN-KEYWORD, trace.qq.com, REJECT
+DOMAIN-KEYWORD, pgdt.gtimg.c, REJECT
+DOMAIN-KEYWORD, trace.video.qq.com, REJECT
+DOMAIN-KEYWORD, 1258344696.file.myqcloud.com, REJECT
+IP-CIDR, 183.201.213.194/32, REJECT, no-resolve
+IP-CIDR, 120.222.144.64/32, REJECT, no-resolve
+IP-CIDR, 111.6.166.107/32, REJECT, no-resolve
+
+[Rewrite]
+# ^http:\/\/[\d\.:]*\/?(defaultts\.tc|vmind\.qqvideo\.tc|finderpdd\.video)\.qq\.com\/\w+ reject
+# ^http:\/\/apd-vlive\.apdcdn\.tc\.qq\.com\/vmind\.qqvideo\.tc\.qq\.com\/\w+ reject
+# ^http:\/\/apd-\w+\.v\.smtcdns\.com\/(defaultts|omts|vmind\.qqvideo)\.tc\.qq\.com\/\w+ reject
+^https?:\/\/vv\.video\.qq\.com\/(diff|get)vmind reject-dict
+^https?:\/\/vv\.video\.qq\.com\/getvinfo request-body-replace-regex &sppreviewtype=\d(.*)&spsrt=\d &sppreviewtype=0$1&spsrt=0
+
+[Script]
+# http-request ^https?:\/\/vv\.video\.qq\.com\/getvinfo script-path = https://raw.githubusercontent.com/sooyaaabo/Loon/main/Script/CommonScript/replace-body.js, requires-body = true, tag = [腾讯视频]移除广告, argument="&sppreviewtype=\d(.*)&spsrt=\d->&sppreviewtype=0$1&spsrt=0"
+
+[MitM]
+hostname = vv.video.qq.com
+
+
+const url = $request.url;
+const header = $request.headers;
+const isQQVideo = url.includes("video.qq.com");
+
+if (isQQVideo) {
+    // 假设有以下参数从用户输入（类似网易云音乐的处理方式）
+    const cookie = $argument?.Cookie;
+    const userAgent = $argument?.UserAgent;
+
+    // 检查必要的参数是否存在
+    if (!cookie || !userAgent) {
+        console.log("参数缺失信息：");
+        if (!cookie) console.log("❌ Cookie 参数缺失");
+        if (!userAgent) console.log("❌ UserAgent 参数缺失");
+
+        // 提示用户缺失参数
+        $notification.post(
+            "腾讯视频遇到问题",
+            "参数缺失",
+            "请在插件内填入会员数据"
+        );
+        $done({});
+    } else {
+        // 修改请求头中的字段
+        header["cookie"] = cookie;
+        header["user-agent"] = userAgent;
+
+        // 输出日志信息
+        console.log("✅ 腾讯视频会员已解锁 🎉");
+
+        // 返回修改后的请求头
+        $done({ headers: header });
+    }
+} else {
+    // 如果请求不是来自 video.qq.com，直接结束
+    $done({});
+}
