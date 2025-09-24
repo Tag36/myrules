@@ -13,7 +13,7 @@
 # https://raw.githubusercontent.com/RuCu6/QuanX/main/Rewrites/Cube/cnftp.snippet
 # https://raw.githubusercontent.com/fmz200/wool_scripts/main/Loon/rule/TencentVideo.list
 
-
+[Argument]
 VIP = switch, false, tag = [启用]会员, desc = 关闭开关将不对此选项生效
 Cookie = input, "", tag = Cookie, desc = 必填
 MConfigInfo = input, "{"client":{"version":1830912,"appver":"9.1.70"},"device":{"os":"iOS","deviceModel":"iPhone 12"}}", tag = MConfigInfo ,desc = 选填
