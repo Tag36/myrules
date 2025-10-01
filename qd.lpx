@@ -1,3 +1,15 @@
+#!name = Cookie & Task
+#!desc = 自动完成每日签到任务，按需开启相应功能即可。\n具体使用方法请查看所引用脚本或插件内详细说明。
+#!openUrl = 
+#!tag = 定时任务
+#!system = 
+#!system_version = 
+#!loon_version = 3.3.4(898)
+#!icon = https://raw.githubusercontent.com/sooyaaabo/Loon/main/Icon/App-Icon/Notifyman.png
+#!date = 2025-09-18 12:00
+
+
+
 [Argument]
 # 微信支付有优惠
 Cookie-wechatpay = switch, true, false, tag = [微信支付有优惠]领金币Token, desc = 获取[微信支付有优惠]领金币Token
