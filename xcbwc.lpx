@@ -16,9 +16,13 @@
 
 重写:打开软件，获取token后及时关闭，避免不必要的冲突
 
+xcbwc-token = switch, true, false, tag = [小蚕霸王餐]Token, desc = 获取[小蚕霸王餐]Token
+
+
+
 [Script]
 cron "0 0 9 * * ?" script-path=https://gist.githubusercontent.com/Sliverkiss/250a02315f0a2c99f42da3b3573375c8/raw/xcbwc.js, timeout=60, tag=小蚕霸王餐
-http-request ^https:\/\/gw\.xiaocantech\.com\/rpc script-path=https://gist.githubusercontent.com/Sliverkiss/250a02315f0a2c99f42da3b3573375c8/raw/xcbwc.js, timeout=60, enabled=switch, tag=小蚕霸王餐
+http-request ^https:\/\/gw\.xiaocantech\.com\/rpc script-path=https://gist.githubusercontent.com/Sliverkiss/250a02315f0a2c99f42da3b3573375c8/raw/xcbwc.js, timeout=60, enabled={xcbwc-token}, tag=小蚕霸王餐
 
 [MITM]
 hostname = gw.xiaocantech.com
