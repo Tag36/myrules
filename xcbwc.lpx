@@ -16,6 +16,8 @@
 
 重写:打开软件，获取token后及时关闭，避免不必要的冲突
 
+[Argument]
+
 xcbwc-token = switch, true, false, tag = [小蚕霸王餐]Token, desc = 获取[小蚕霸王餐]Token
 
 
