@@ -1,0 +1,59 @@
+/*
+ *
+ *
+#!name= 哔哩哔哩 𝕏
+#!desc= 对哔哩哔哩深度学习探索;
+#!homepage = https://apps.apple.com/app/id1517062289
+#!icon= https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/7c/c5/16/7cc516f1-6252-3a4f-808e-338b6dfea663/AppIcon-inter-1x_U007ephone-0-0-0-85-220-0.png/114x114bb.jpg
+
+[Argument]
+VIP = switch, false, tag = [启用]会员, desc = 关闭开关将不对此选项生效
+
+Authorization = input, "", tag = Authorization ,desc = 选填
+UserAgent = input, "", tag = User-Agent, desc = 选填
+
+[Rule]
+
+[Rewrite]
+
+[Script]
+http-request ^https?:\/\/(?:grpc\.biliapi\.net|app\.bilibili\.com|app\.biliapi\.net)\/(?:bilibili\.app\.(?:playerunite\.v1\.Player\/PlayViewUnite|playurl\.v1\.PlayURL\/PlayView)|bilibili\.pgc\.gateway\.player\.v2\.PlayURL\/PlayView) script-path=https://he2o.vercel.app/Resource/Plugin/Bilibili.js, binary-body-mode=true, requires-body=true, timeout=60, tag=会员, enable={VIP}, argument=[{Authorization},{UserAgent}]
+http-response ^https?:\/\/app\.bilibili\.com\/x\/v\d\/(account\/(myinfo|mine)|(feed\/index))\? script-path=https://he2o.vercel.app/Resource/Plugin/Bilibili.js, requires-body=true, timeout=60, tag=画质, enable={VIP}, argument=[{Authorization},{UserAgent}]
+
+[Mitm]
+hostname = *.bilibili.*,*.biliapi.*
+*
+*
+*/
+
+
+
+
+
+
+const url = $request.url;
+const header = $request.headers;
+
+const authorization = $argument?.Authorization;
+const userAgent = $argument?.UserAgent;
+
+if (!authorization || !userAgent) {
+
+    console.log("参数缺失信息：");
+    if (!authorization) console.log("❌ Authorization 参数缺失");
+    if (!userAgent) console.log("❌ UserAgent 参数缺失");
+
+    $notification.post(
+        "哔哩哔哩遇到问题",
+        "参数缺失",
+        "请在插件内填入会员数据"
+    );
+
+    $done({});
+    return;
+}
+
+header["authorization"] = authorization;
+header["user-agent"] = userAgent;
+
+console.log("✅ 哔哩哔哩大会员已解锁 🎉");
