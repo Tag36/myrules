@@ -4,7 +4,7 @@
 #!name= 哔哩哔哩 𝕏
 #!desc= 对哔哩哔哩深度学习探索;
 #!homepage = https://apps.apple.com/app/id1517062289
-#!icon= https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/7c/c5/16/7cc516f1-6252-3a4f-808e-338b6dfea663/AppIcon-inter-1x_U007ephone-0-0-0-85-220-0.png/114x114bb.jpg
+#!icon= https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/25/64/53/25645305-a9b6-ceeb-673d-322e5512f792/AppIcon-0-0-1x_U007epad-0-1-0-85-220.png/120x120bb.png
 
 [Argument]
 VIP = switch, false, tag = [启用]会员, desc = 关闭开关将不对此选项生效
