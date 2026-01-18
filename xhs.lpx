@@ -1,6 +1,8 @@
-
 #!name= 小红书 𝕏
 #!desc= 小红书去除视频
+#!author=🌲
+#!icon= https://raw.githubusercontent.com/luestr/IconResource/main/App_icon/120px/RedPaper.png
+
 
 [Rewrite]
 ^https:\/\/so\.xiaohongshu\.com\/api\/sns\/v\d+\/search\/notes response-body-json-jq '.data.items |= map(select(.note?.type == "normal"))'
