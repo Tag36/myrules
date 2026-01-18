@@ -1,0 +1,11 @@
+
+#!name= 小红书 𝕏
+#!desc= 小红书去除视频
+
+[Rewrite]
+^https:\/\/so\.xiaohongshu\.com\/api\/sns\/v\d+\/search\/notes response-body-json-jq '.data.items |= map(select(.note?.type == "normal"))'
+^https:\/\/rec\.xiaohongshu\.com\/api\/sns\/v\d+\/homefeed response-body-json-jq '.data |= map(select(.type == "normal"))'
+
+
+[MitM]
+hostname = *.xiaohongshu.com
