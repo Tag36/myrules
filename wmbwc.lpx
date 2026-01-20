@@ -1,0 +1,18 @@
+#!name=歪麦霸王餐
+#!desc=歪麦霸王餐 获取 Token + 定时任务
+#!author=Sliverkiss
+#!icon=https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Food.png
+#!tag=Automation
+#!homepage=https://github.com/Sliverkiss
+
+[Argument]
+cron=input,0 0 9 * * ?,tag=cron, desc=cron
+获取token=input,获取,tag=获取token, desc=获取token
+
+[Script]
+cron "0 0 9 * * ?" script-path=https://gist.githubusercontent.com/Sliverkiss/49a9ffb2169a2becc33bf4fdbf6eb99a/raw/wmbwc.js, timeout=60, tag={cron}
+
+http-request ^https:\/\/wmapp-api\.waimaimingtang\.com\/api\/api\/v2\/user\/api_user_info_one script-path=https://gist.githubusercontent.com/Sliverkiss/49a9ffb2169a2becc33bf4fdbf6eb99a/raw/wmbwc.js, requires-body=true, timeout=60, tag={获取token}
+
+[MITM]
+hostname = wmapp-api.waimaimingtang.com
