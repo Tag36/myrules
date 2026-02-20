@@ -8,7 +8,7 @@
  */
 
 const scriptName = "安徽联通秒杀";
-const targetHour = 17;   // ⏰ 设定秒杀小时 (例如 10点 或 17点)
+const targetHour = 16;   // ⏰ 设定秒杀小时 (例如 10点 或 17点)
 const targetMinute = 0;
 const targetSecond = 0;
 const advanceMs = 300;   // 提前毫秒数
