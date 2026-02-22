@@ -82,34 +82,44 @@ function RunSeckill() {
             body: "{}" 
         };
 
+        // 记录发起请求的精准时间戳
+        let startTime = new Date();
+        let startStr = formatTime(startTime);
+
         $task.fetch(req).then(response => {
+            // 计算耗时
+            let endTime = new Date();
+            let costMs = endTime.getTime() - startTime.getTime();
+
             try {
                 const result = JSON.parse(response.body);
                 const msg = result.alertMsg || result.message || "无信息";
                 const success = result.success || false;
                 const code = result.statusCode || result.code || "";
                 
-                // ⭐ 简化后的日志输出
+                // ⭐ 附带时间和耗时的日志
                 if (success) {
                     const prize = result.data?.awardName || "未知";
-                    console.log(`${accName} 🎉 成功 | 奖品: ${prize} | 提示: ${msg}`);
-                    $notify(scriptName, `🎉 ${accName} 秒杀成功`, `奖品: ${prize} | 提示: ${msg}`);
+                    console.log(`[${startStr}] ${accName} 🎉 成功 | 耗时: ${costMs}ms | 奖品: ${prize} | 提示: ${msg}`);
+                    $notify(scriptName, `🎉 ${accName} 秒杀成功`, `耗时: ${costMs}ms | 奖品: ${prize}\n提示: ${msg}`);
                 } else {
-                    console.log(`${accName} 🚫 失败 | 状态码: ${code} | 提示: ${msg}`);
+                    console.log(`[${startStr}] ${accName} 🚫 失败 | 耗时: ${costMs}ms | 状态: ${code} | 提示: ${msg}`);
                     if (code == "900" || msg.indexOf("非法") > -1) {
                         $notify(scriptName, `⚠️ ${accName} 凭证失效`, `提示: ${msg}\n请确保在秒杀前 1-2 分钟内抓取！`);
                     }
                 }
             } catch (e) {
-                // 只有在解析失败（如遇到 502/504 等非 JSON 报错）时，才打印原始 body
-                console.log(`${accName} ⚠️ 解析异常，原始返回: ${response.body}`);
+                console.log(`[${startStr}] ${accName} ⚠️ 解析异常 | 耗时: ${costMs}ms | 原始返回: ${response.body}`);
             }
             
             finished++;
             if (finished === accounts.length) $done();
             
         }, reason => {
-            console.log(`${accName} ❌ 请求出错: ${reason.error}`);
+            let endTime = new Date();
+            let costMs = endTime.getTime() - startTime.getTime();
+            console.log(`[${startStr}] ${accName} ❌ 请求出错 | 耗时: ${costMs}ms | 错误: ${reason.error}`);
+            
             finished++;
             if (finished === accounts.length) $done();
         });
